@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prototype 0: Unauthorized Derby Test</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #140f1f;
+      --panel: rgba(31, 24, 47, 0.91);
+      --panel-strong: #261d3d;
+      --ink: #fff8dc;
+      --muted: #c8badf;
+      --gold: #ffd166;
+      --pink: #ef476f;
+      --green: #06d6a0;
+      --blue: #118ab2;
+      --danger: #ff7b54;
+      --line: rgba(255, 255, 255, 0.16);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(239, 71, 111, 0.28), transparent 28rem),
+        radial-gradient(circle at 82% 2%, rgba(17, 138, 178, 0.22), transparent 24rem),
+        linear-gradient(135deg, #130d1d 0%, #1b1530 50%, #0f1e2b 100%);
+      color: var(--ink);
+    }
+
+    main {
+      width: min(1480px, calc(100% - 16px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 8px 0;
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: clamp(10px, 1.8vw, 16px);
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(239, 71, 111, 0.09)), var(--panel);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "⚙︎";
+      position: absolute;
+      right: 16px;
+      top: -30px;
+      font-size: 110px;
+      color: rgba(255, 255, 255, 0.045);
+      transform: rotate(-14deg);
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--gold);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 820px;
+      font-size: clamp(1.7rem, 5.5vw, 4.1rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .tagline {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .stage-shell {
+      position: relative;
+      min-height: calc(100vh - 128px);
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.035);
+      box-shadow: 0 24px 68px rgba(0, 0, 0, 0.34);
+      isolation: isolate;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+      padding: 14px;
+    }
+
+    .builder-overlay,
+    .result-overlay {
+      position: absolute;
+      z-index: 12;
+      width: min(350px, calc(100% - 28px));
+      background: rgba(22, 16, 34, 0.72);
+      border-color: rgba(255, 255, 255, 0.24);
+      backdrop-filter: blur(14px) saturate(1.2);
+    }
+
+    .builder-overlay {
+      left: 14px;
+      top: 14px;
+      max-height: calc(100% - 28px);
+      overflow: auto;
+    }
+
+    .result-overlay {
+      right: 14px;
+      bottom: 14px;
+      width: min(410px, calc(100% - 28px));
+    }
+
+    .course-panel { position: absolute; inset: 0; z-index: 1; }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .hint, .small {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .hint { margin: -2px 0 8px; }
+
+    fieldset {
+      margin: 10px 0;
+      border: 0;
+      padding: 0;
+    }
+
+    legend {
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: var(--gold);
+      font-size: 0.84rem;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .choice {
+      display: grid;
+      gap: 5px;
+      place-items: center;
+      min-height: 62px;
+      padding: 8px 6px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.045);
+      cursor: pointer;
+      text-align: center;
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .choice:hover,
+    .choice:has(input:checked) {
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(255, 209, 102, 0.7);
+      background: rgba(255, 209, 102, 0.1);
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice strong {
+      display: block;
+      font-size: 0.78rem;
+      line-height: 1.05;
+    }
+
+    .choice .icon {
+      display: block;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .part-picto {
+      position: relative;
+      width: 44px;
+      height: 32px;
+      display: inline-block;
+      font-size: 0;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.32));
+    }
+
+    .part-picto::before,
+    .part-picto::after,
+    .part-picto .wheel,
+    .part-picto .strut,
+    .part-picto .bar {
+      content: "";
+      position: absolute;
+      box-sizing: border-box;
+    }
+
+    .part-picto[data-icon="bathtub"]::before {
+      left: 3px; right: 3px; bottom: 7px; height: 16px;
+      border-radius: 5px 5px 13px 13px;
+      background: linear-gradient(180deg, #f3fbff, #9bd2e5);
+      border: 2px solid #fff;
+    }
+
+    .part-picto[data-icon="bathtub"]::after {
+      left: 9px; right: 9px; bottom: 2px; height: 5px;
+      border-radius: 999px;
+      background: #172331;
+    }
+
+    .part-picto[data-icon="filing-cabinet"]::before {
+      left: 8px; top: 3px; width: 29px; height: 25px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #9eb1c8 0 48%, #6d7f96 48% 52%, #9eb1c8 52% 100%);
+      border: 2px solid #e8f0ff;
+      box-shadow: inset 0 -8px 0 rgba(0,0,0,0.15);
+    }
+
+    .part-picto[data-icon="filing-cabinet"]::after {
+      left: 16px; top: 9px; width: 13px; height: 3px;
+      border-radius: 999px;
+      background: #263445;
+      box-shadow: 0 10px 0 #263445;
+    }
+
+    .part-picto[data-icon="picnic-table"]::before {
+      left: 5px; right: 5px; top: 7px; height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #ffcf75, #b96f32);
+      border: 2px solid rgba(255,255,255,0.86);
+    }
+
+    .part-picto[data-icon="picnic-table"]::after {
+      left: 12px; top: 15px; width: 20px; height: 13px;
+      border-left: 4px solid #8b4f26;
+      border-right: 4px solid #8b4f26;
+      transform: skewX(-16deg);
+    }
+
+    .part-picto .wheel {
+      bottom: 3px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd166 0 22%, #1d1b20 23% 52%, #f4f1e8 53% 68%, #1d1b20 69%);
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .part-picto .wheel:nth-last-child(2) { left: 7px; }
+    .part-picto .wheel:last-child { right: 7px; }
+
+    .part-picto[data-icon="cart-wheels"] .bar {
+      left: 6px; right: 6px; top: 10px; height: 10px;
+      border-top: 3px solid #c7d7df;
+      border-left: 3px solid #c7d7df;
+      transform: skewX(-18deg);
+    }
+
+    .part-picto[data-icon="caster-wheels"] .strut {
+      left: 12px; top: 4px; width: 21px; height: 15px;
+      border-top: 4px solid #d7dde8;
+      border-left: 4px solid #d7dde8;
+      border-right: 4px solid #d7dde8;
+      border-radius: 7px 7px 2px 2px;
+    }
+
+    .part-picto[data-icon="caster-wheels"] .wheel { width: 10px; height: 10px; bottom: 5px; }
+
+    .part-picto[data-icon="wagon-wheels"] .wheel {
+      width: 16px;
+      height: 16px;
+      bottom: 2px;
+      background: radial-gradient(circle, #f8f0d0 0 15%, #9b2d2d 16% 26%, transparent 27% 34%, #9b2d2d 35% 47%, transparent 48% 58%, #9b2d2d 59% 72%, #1c171a 73%);
+    }
+
+    .part-picto[data-icon="wagon-wheels"] .bar {
+      left: 6px; right: 6px; top: 11px; height: 5px;
+      border-radius: 999px;
+      background: #b93131;
+    }
+
+    .choice .part-note { display: none; }
+
+    .companion-choice {
+      grid-template-columns: 1fr;
+    }
+
+    .companion-choice .choice {
+      min-height: 42px;
+      grid-template-columns: auto 1fr;
+      place-items: center start;
+      text-align: left;
+      padding-inline: 12px;
+    }
+
+    .stats {
+      display: grid;
+      gap: 7px;
+      margin: 11px 0;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.23);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 72px 1fr 28px;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .meter {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.11);
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--gold));
+      transition: width 180ms ease;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 14px;
+      font-weight: 950;
+      color: #17101f;
+      background: var(--gold);
+      cursor: pointer;
+      box-shadow: 0 9px 22px rgba(0, 0, 0, 0.24);
+    }
+
+    button.secondary {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      opacity: 0.62;
+      cursor: wait;
+    }
+
+    .course {
+      position: absolute;
+      inset: 0;
+      min-height: 560px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.2), transparent 7rem),
+        radial-gradient(ellipse at 76% 70%, rgba(6, 214, 160, 0.18), transparent 18rem),
+        linear-gradient(180deg, rgba(17, 138, 178, 0.34), rgba(20, 15, 31, 0.08) 42%),
+        linear-gradient(156deg, transparent 0 18%, rgba(255, 209, 102, 0.36) 18% 22%, rgba(94, 69, 38, 0.96) 22% 68%, rgba(6, 214, 160, 0.35) 68% 100%);
+    }
+
+    .course::before {
+      content: "";
+      position: absolute;
+      inset: 44% -8% 10% -8%;
+      background: repeating-linear-gradient(100deg, rgba(255,255,255,0.13) 0 8px, transparent 8px 34px);
+      opacity: 0.34;
+      transform: rotate(2deg);
+    }
+
+    .course::after {
+      content: "";
+      position: absolute;
+      left: -8%; right: -8%; bottom: 3%; height: 34%;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.34), transparent 68%);
+      opacity: 0.5;
+    }
+
+    .label {
+      position: absolute;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.48);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 0.73rem;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .hill { left: 9%; top: 34%; }
+    .bump { left: 43%; top: 64%; }
+    .crate { left: 62%; top: 54%; }
+    .finish { right: 5%; bottom: 17%; }
+
+    .obstacle.bump-shape {
+      position: absolute;
+      left: 43%;
+      top: 72%;
+      width: 78px;
+      height: 31px;
+      border-radius: 90px 90px 8px 8px;
+      background: #7f5539;
+      border: 2px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .obstacle.crate-shape {
+      position: absolute;
+      left: 64%;
+      top: 61%;
+      width: 48px;
+      height: 48px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #b56b2c, #6f3f1d);
+      border: 2px dashed rgba(255, 255, 255, 0.28);
+      transform: rotate(-9deg);
+    }
+
+    .finish-line {
+      position: absolute;
+      right: 8%;
+      bottom: 8%;
+      width: 12px;
+      height: 122px;
+      background: repeating-linear-gradient(0deg, white 0 12px, #111 12px 24px);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+    }
+
+    .track-line {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 20%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.28);
+      transform: rotate(12deg);
+      transform-origin: left center;
+    }
+
+    .contraption {
+      position: absolute;
+      left: 7%;
+      top: 34%;
+      width: 118px;
+      height: 78px;
+      transform: rotate(10deg);
+      transition: left 760ms cubic-bezier(.18, 1.45, .35, 1), top 760ms cubic-bezier(.18, 1.45, .35, 1), transform 760ms cubic-bezier(.18, 1.45, .35, 1);
+      z-index: 4;
+    }
+
+    .sprite-shadow {
+      position: absolute;
+      left: 14px;
+      right: 2px;
+      bottom: 4px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      filter: blur(2px);
+      transform: skewX(-18deg);
+    }
+
+    .motion-trail {
+      position: absolute;
+      left: -26px;
+      top: 28px;
+      width: 42px;
+      height: 16px;
+      border-radius: 999px;
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,0.0) 0 5px, rgba(255,255,255,0.36) 5px 15px, rgba(255,255,255,0.0) 15px 23px);
+      opacity: 0.55;
+    }
+
+    .rig-body {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 78px;
+      height: 38px;
+      border-radius: 15px 18px 8px 10px;
+      background: linear-gradient(135deg, var(--pink), var(--gold));
+      border: 2px solid rgba(255, 255, 255, 0.78);
+      box-shadow: inset 0 8px 0 rgba(255,255,255,0.18), 0 10px 16px rgba(0, 0, 0, 0.28);
+      z-index: 2;
+    }
+
+    .rig-body::before {
+      content: "";
+      position: absolute;
+      left: 9px;
+      right: 12px;
+      top: 8px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.28);
+    }
+
+    .contraption[data-chassis="filing"] .rig-body {
+      border-radius: 7px;
+      background: linear-gradient(180deg, #93abc8 0 48%, #5d6c82 48% 52%, #8ca7c5 52% 100%);
+    }
+
+    .contraption[data-chassis="picnic"] .rig-body {
+      height: 26px;
+      top: 24px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #ffd166, #9f5b2b);
+    }
+
+    .contraption[data-chassis="picnic"] .rig-body::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: -18px;
+      height: 18px;
+      border-left: 5px solid #7f4a26;
+      border-right: 5px solid #7f4a26;
+      transform: skewX(-16deg);
+    }
+
+    .wheel-assembly {
+      position: absolute;
+      left: 16px;
+      right: 18px;
+      bottom: 11px;
+      height: 24px;
+      z-index: 3;
+    }
+
+    .wheel-assembly::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 10px;
+      top: 9px;
+      height: 4px;
+      border-radius: 999px;
+      background: #d7dde8;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.22);
+    }
+
+    .wheel-assembly .wheel {
+      position: absolute;
+      bottom: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffd166 0 18%, #161616 19% 48%, #f4f1e8 49% 64%, #161616 65%);
+      border: 2px solid rgba(255,255,255,0.82);
+    }
+
+    .wheel-assembly .front { right: 0; }
+    .wheel-assembly .rear { left: 0; }
+
+    .contraption.wheel-casters .wheel-assembly .wheel { width: 17px; height: 17px; bottom: 2px; }
+    .contraption.wheel-casters .wheel-assembly::before { top: 2px; height: 16px; background: transparent; border-top: 4px solid #d7dde8; border-left: 4px solid #d7dde8; border-right: 4px solid #d7dde8; border-radius: 10px 10px 2px 2px; }
+    .contraption.wheel-wagon .wheel-assembly .wheel { width: 25px; height: 25px; background: radial-gradient(circle, #f8f0d0 0 14%, #9b2d2d 15% 26%, transparent 27% 34%, #9b2d2d 35% 47%, transparent 48% 58%, #9b2d2d 59% 72%, #1c171a 73%); }
+    .contraption.wheel-wagon .wheel-assembly::before { background: #b93131; }
+
+    .chicken {
+      position: absolute;
+      right: -17px;
+      top: -17px;
+      font-size: 25px;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+    }
+
+    .fx {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      font-size: 1.45rem;
+      filter: drop-shadow(0 3px 1px rgba(0, 0, 0, 0.35));
+    }
+
+    .dust-a { left: 18%; top: 55%; }
+    .dust-b { left: 49%; top: 67%; }
+    .impact { left: 65%; top: 52%; font-size: 2rem; }
+    .sparkle { right: 10%; bottom: 31%; font-size: 1.8rem; }
+
+    .running .contraption {
+      animation: flash-wobble 170ms infinite alternate ease-in-out, squash 340ms infinite ease-in-out;
+    }
+
+    .running .wheel-assembly .wheel {
+      animation: wheel-spin 220ms linear infinite;
+    }
+
+    .running .motion-trail { animation: streak 420ms infinite ease-out; }
+
+    .running .dust-a,
+    .running .dust-b {
+      animation: puff 680ms infinite ease-out;
+    }
+
+    .running .dust-b { animation-delay: 160ms; }
+
+    .success .contraption {
+      left: 83%;
+      top: 65%;
+      transform: rotate(18deg) scale(1.08);
+      animation: victory-bounce 520ms 2 ease-in-out;
+    }
+
+    .success .sparkle { animation: pop 720ms 2 ease-out; }
+
+    .failure .contraption {
+      left: 58%;
+      top: 58%;
+      transform: rotate(142deg) scale(0.96, 0.82);
+    }
+
+    .failure .impact { animation: boom 760ms 2 ease-out; }
+
+    .elegant .contraption {
+      left: 72%;
+      top: 31%;
+      transform: rotate(390deg) scale(1.13);
+      animation: elegant-spin 760ms 1 ease-out;
+    }
+
+    .elegant .impact,
+    .elegant .sparkle { animation: pop 760ms 2 ease-out; }
+
+    @keyframes flash-wobble {
+      from { translate: -1px -5px; rotate: -3deg; }
+      to { translate: 2px 5px; rotate: 4deg; }
+    }
+
+    @keyframes squash {
+      0%, 100% { scale: 1 1; }
+      50% { scale: 1.08 0.9; }
+    }
+
+    @keyframes wheel-spin { to { rotate: 360deg; } }
+
+    @keyframes streak {
+      0% { opacity: 0; transform: translateX(14px) scaleX(0.5); }
+      35% { opacity: 0.72; }
+      100% { opacity: 0; transform: translateX(-16px) scaleX(1.35); }
+    }
+
+    @keyframes puff {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.45); }
+      30% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-26px, -18px) scale(1.4); }
+    }
+
+    @keyframes pop {
+      0% { opacity: 0; transform: scale(0.2) rotate(-18deg); }
+      35% { opacity: 1; transform: scale(1.35) rotate(8deg); }
+      100% { opacity: 0; transform: scale(0.8) rotate(26deg); }
+    }
+
+    @keyframes boom {
+      0% { opacity: 0; transform: scale(0.2); }
+      28% { opacity: 1; transform: scale(1.45) rotate(-8deg); }
+      100% { opacity: 0; transform: scale(0.85) rotate(14deg); }
+    }
+
+    @keyframes victory-bounce {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -18px; }
+    }
+
+    @keyframes elegant-spin {
+      from { translate: -16px 18px; }
+      to { translate: 0 0; }
+    }
+
+    .result-card {
+      min-height: 126px;
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(6, 214, 160, 0.09), rgba(239, 71, 111, 0.09)), rgba(255, 255, 255, 0.055);
+      border: 1px solid var(--line);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, 0.16);
+      color: var(--gold);
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+
+    .recap {
+      margin: 6px 0 0;
+      color: var(--ink);
+      font-size: 0.98rem;
+      line-height: 1.34;
+    }
+
+    .distance {
+      color: var(--muted);
+      margin: 6px 0 0;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 820px) {
+      main { width: min(100% - 10px, 720px); padding-top: 6px; }
+      .hero { padding: 8px 10px; border-radius: 17px; }
+      .hero::after { font-size: 62px; right: 8px; top: -21px; }
+      .eyebrow { font-size: 0.57rem; margin-bottom: 1px; }
+      h1 { font-size: clamp(1.2rem, 6.8vw, 1.9rem); line-height: 0.94; }
+      .tagline { margin-top: 4px; font-size: 0.7rem; }
+      .stage-shell { min-height: calc(100vh - 110px); margin-top: 6px; border-radius: 18px; }
+      .panel { padding: 9px; border-radius: 16px; }
+      .builder-overlay { left: 8px; top: 8px; width: calc(100% - 16px); max-height: 54%; }
+      .result-overlay { left: 8px; right: auto; bottom: 8px; width: calc(100% - 16px); }
+      .panel h2 { margin-bottom: 4px; font-size: 0.88rem; }
+      .hint { display: none; }
+      #builderForm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+      fieldset { margin: 0; min-width: 0; }
+      legend { margin-bottom: 3px; font-size: 0.66rem; }
+      .choice-grid { gap: 3px; }
+      .choice { min-height: 35px; padding: 4px 2px; border-radius: 10px; gap: 2px; }
+      .choice strong { font-size: 0.55rem; line-height: 1; }
+      .choice .icon { font-size: 0.95rem; }
+      .part-picto { width: 35px; height: 25px; transform: scale(0.82); transform-origin: center; }
+      .companion-choice .choice { min-height: 35px; grid-template-columns: 1fr; place-items: center; text-align: center; padding-inline: 2px; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin: 6px 0; padding: 6px; }
+      .stat-row { grid-template-columns: 1fr; gap: 3px; text-align: center; font-size: 0.66rem; }
+      .stat-row output { display: none; }
+      .meter { height: 6px; }
+      .actions { margin-top: 6px; gap: 7px; }
+      button { padding: 10px 9px; font-size: 0.84rem; }
+      .course-panel { inset: 0; }
+      .course { min-height: 0; }
+      .label { font-size: 0.66rem; padding: 4px 6px; }
+      .finish-line { height: 68px; }
+      .obstacle.bump-shape { width: 50px; height: 20px; }
+      .obstacle.crate-shape { width: 31px; height: 31px; }
+      .contraption { width: 78px; height: 52px; }
+      .rig-body { left: 12px; top: 12px; width: 52px; height: 25px; }
+      .wheel-assembly { left: 10px; right: 12px; bottom: 7px; transform: scale(0.72); transform-origin: bottom center; }
+      .motion-trail { top: 18px; transform: scale(0.75); }
+      .chicken { font-size: 19px; right: -6px; top: -8px; }
+      .result-panel h2 { display: none; }
+      .result-card { min-height: 0; padding: 7px; }
+      .badge { padding: 4px 8px; margin-bottom: 2px; font-size: 0.74rem; }
+      .recap { margin-top: 2px; font-size: 0.72rem; line-height: 1.16; }
+      .distance { margin-top: 2px; }
+      .distance { font-size: 0.64rem; line-height: 1.15; }
+      #hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <p class="eyebrow">Kooky Tech League</p>
+      <h1>Prototype 0: Unauthorized Derby Test</h1>
+      <p class="tagline"><span>🛠️ Build</span><span>🏁 Launch</span><span>🔁 Retry</span></p>
+    </header>
+
+    <section class="stage-shell" aria-label="Playable derby MVP">
+      <section class="course-panel" aria-labelledby="course-title">
+        <h2 id="course-title" class="sr-only">Course</h2>
+        <div id="course" class="course" aria-label="Visible derby course with hill, bump, loose crate, and finish line">
+          <div class="track-line"></div>
+          <span class="label hill">⛰️ hill</span>
+          <span class="label bump">〰️ bump</span>
+          <span class="label crate">📦 crate</span>
+          <span class="label finish">🏁 finish</span>
+          <div class="obstacle bump-shape" aria-hidden="true"></div>
+          <div class="obstacle crate-shape" aria-hidden="true"></div>
+          <div class="finish-line" aria-hidden="true"></div>
+          <span class="fx dust-a">💨</span>
+          <span class="fx dust-b">💨</span>
+          <span class="fx impact">💥</span>
+          <span class="fx sparkle">✨</span>
+          <div id="contraption" class="contraption wheel-cart" data-chassis="bathtub" aria-label="Derby contraption sprite">
+            <div class="motion-trail" aria-hidden="true"></div>
+            <div class="sprite-shadow" aria-hidden="true"></div>
+            <div class="rig-body" aria-hidden="true"></div>
+            <div class="wheel-assembly" aria-hidden="true"><span class="wheel rear"></span><span class="wheel front"></span></div>
+            <span class="chicken" title="Kentucky Fried">🐔</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel builder-panel builder-overlay" aria-labelledby="builder-title">
+        <h2 id="builder-title">Build</h2>
+        <p class="hint">Pick a rig. Watch the meters.</p>
+
+        <form id="builderForm">
+          <fieldset>
+            <legend>Chassis</legend>
+            <div class="choice-grid">
+              <label class="choice"><input type="radio" name="chassis" value="bathtub" checked><span class="icon part-picto" data-icon="bathtub" aria-hidden="true"></span><strong>Bathtub</strong><span class="part-note">Sturdy plumbing sled.</span></label>
+              <label class="choice"><input type="radio" name="chassis" value="filing"><span class="icon part-picto" data-icon="filing-cabinet" aria-hidden="true"></span><strong>Filing Sled</strong><span class="part-note">Fast drawers.</span></label>
+              <label class="choice"><input type="radio" name="chassis" value="picnic"><span class="icon part-picto" data-icon="picnic-table" aria-hidden="true"></span><strong>Picnic Rig</strong><span class="part-note">Wide table frame.</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Wheels</legend>
+            <div class="choice-grid">
+              <label class="choice"><input type="radio" name="wheels" value="cart" checked><span class="icon part-picto" data-icon="cart-wheels" aria-hidden="true"><span class="bar"></span><span class="wheel"></span><span class="wheel"></span></span><strong>Cart</strong><span class="part-note">Wobbly grocery tech.</span></label>
+              <label class="choice"><input type="radio" name="wheels" value="casters"><span class="icon part-picto" data-icon="caster-wheels" aria-hidden="true"><span class="strut"></span><span class="wheel"></span><span class="wheel"></span></span><strong>Casters</strong><span class="part-note">Meeting-room doom.</span></label>
+              <label class="choice"><input type="radio" name="wheels" value="wagon"><span class="icon part-picto" data-icon="wagon-wheels" aria-hidden="true"><span class="bar"></span><span class="wheel"></span><span class="wheel"></span></span><strong>Wagon</strong><span class="part-note">Parade traction.</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Oddity</legend>
+            <div class="choice-grid">
+              <label class="choice"><input type="radio" name="oddity" value="whoopee" checked><span class="icon">💨</span><strong>Whoopee</strong><span class="part-note">Embarrassment thrust.</span></label>
+              <label class="choice"><input type="radio" name="oddity" value="umbrella"><span class="icon">☂️</span><strong>Umbrella</strong><span class="part-note">Sky shield.</span></label>
+              <label class="choice"><input type="radio" name="oddity" value="blower"><span class="icon">🍃</span><strong>Blower</strong><span class="part-note">Apology later.</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Co-pilot</legend>
+            <div class="choice-grid companion-choice">
+              <label class="choice"><input type="radio" name="companion" value="kentucky" checked><span class="icon">🐔</span><strong>Kentucky Fried</strong><span class="part-note">Chicken supervision.</span></label>
+            </div>
+          </fieldset>
+        </form>
+
+        <section class="stats" aria-live="polite">
+          <div class="stat-row"><strong>Stability</strong><div class="meter"><span id="stabilityMeter"></span></div><output id="stabilityValue">0</output></div>
+          <div class="stat-row"><strong>Speed</strong><div class="meter"><span id="speedMeter"></span></div><output id="speedValue">0</output></div>
+          <div class="stat-row"><strong>Chaos</strong><div class="meter"><span id="chaosMeter"></span></div><output id="chaosValue">0</output></div>
+        </section>
+
+        <div class="actions">
+          <button id="startButton" type="button">Press Start</button>
+          <button id="tweakButton" type="button" class="secondary">Retry</button>
+        </div>
+      </aside>
+
+      <section class="panel result-panel result-overlay" aria-labelledby="result-title">
+        <h2 id="result-title">Result</h2>
+        <div class="result-card" aria-live="polite">
+          <div id="outcomeBadge" class="badge">Ready</div>
+          <p id="recap" class="recap">Pick parts, then launch Mitch's worst idea.</p>
+          <p id="distance" class="distance">Distance: 0 meters. Outcomes: Success, Failure, Elegant Failure.</p>
+          <p id="hint" class="small">Try a different part after each run.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const parts = {
+      chassis: {
+        bathtub: { label: 'Porcelain Bathtub', stability: 5, speed: 2, chaos: 3 },
+        filing: { label: 'Filing Cabinet Sled', stability: 2, speed: 5, chaos: 4 },
+        picnic: { label: 'Picnic Table Frame', stability: 4, speed: 3, chaos: 5 },
+      },
+      wheels: {
+        cart: { label: 'Shopping Cart Wheels', stability: 2, speed: 4, chaos: 5 },
+        casters: { label: 'Office Chair Casters', stability: 1, speed: 5, chaos: 6 },
+        wagon: { label: 'Red Wagon Wheels', stability: 5, speed: 3, chaos: 2 },
+      },
+      oddity: {
+        whoopee: { label: 'Infrared Whoopee Drive', stability: 1, speed: 4, chaos: 6 },
+        umbrella: { label: 'Umbrella Stabilizer Fin', stability: 6, speed: 1, chaos: 2 },
+        blower: { label: 'Questionable Leaf Blower', stability: 1, speed: 6, chaos: 5 },
+      },
+      companion: {
+        kentucky: { label: 'Kentucky Fried', stability: 2, speed: 0, chaos: 2 },
+      },
+    };
+
+    const form = document.querySelector('#builderForm');
+    const course = document.querySelector('#course');
+    const contraption = document.querySelector('#contraption');
+    const startButton = document.querySelector('#startButton');
+    const tweakButton = document.querySelector('#tweakButton');
+    const outcomeBadge = document.querySelector('#outcomeBadge');
+    const recap = document.querySelector('#recap');
+    const distance = document.querySelector('#distance');
+    const hint = document.querySelector('#hint');
+
+    const statIds = ['stability', 'speed', 'chaos'];
+    let runCount = 0;
+
+    function selectedBuild() {
+      const data = new FormData(form);
+      return {
+        chassis: parts.chassis[data.get('chassis')],
+        wheels: parts.wheels[data.get('wheels')],
+        oddity: parts.oddity[data.get('oddity')],
+        companion: parts.companion[data.get('companion')],
+      };
+    }
+
+    function totalsFor(build) {
+      return Object.values(build).reduce((totals, part) => ({
+        stability: totals.stability + part.stability,
+        speed: totals.speed + part.speed,
+        chaos: totals.chaos + part.chaos,
+      }), { stability: 0, speed: 0, chaos: 0 });
+    }
+
+    function updateSpriteVisual() {
+      const data = new FormData(form);
+      const chassis = data.get('chassis') || 'bathtub';
+      const wheels = data.get('wheels') || 'cart';
+      contraption.dataset.chassis = chassis;
+      contraption.classList.remove('wheel-cart', 'wheel-casters', 'wheel-wagon');
+      contraption.classList.add(`wheel-${wheels}`);
+    }
+
+    function updateStats() {
+      const totals = totalsFor(selectedBuild());
+      updateSpriteVisual();
+      statIds.forEach((name) => {
+        const value = totals[name];
+        document.querySelector(`#${name}Value`).value = value;
+        document.querySelector(`#${name}Meter`).style.width = `${Math.min(100, Math.round((value / 18) * 100))}%`;
+      });
+      return totals;
+    }
+
+    function seededNoise(build, totals) {
+      const signature = Object.values(build).map((part) => part.label).join('|') + `|${runCount}`;
+      let hash = 0;
+      for (const char of signature) hash = (hash * 31 + char.charCodeAt(0)) % 9973;
+      const deterministic = (hash % 100) / 100;
+      const random = Math.random() * 0.38;
+      return deterministic * 0.62 + random + (totals.chaos * 0.006);
+    }
+
+    function simulateRun() {
+      runCount += 1;
+      const build = selectedBuild();
+      const totals = updateStats();
+      const noise = seededNoise(build, totals);
+      const successScore = totals.stability * 0.62 + totals.speed * 0.28 - totals.chaos * 0.18 + noise * 4;
+      const spectacleScore = totals.chaos * 0.58 + totals.speed * 0.34 - totals.stability * 0.16 + noise * 5;
+
+      let outcome = 'Failure';
+      if (successScore >= 7.4 && noise < 1.08) outcome = 'Success';
+      if (spectacleScore >= 8.2 && successScore < 9.8) outcome = 'Elegant Failure';
+      if (successScore >= 10.2) outcome = 'Success';
+
+      const distanceMeters = Math.max(19, Math.min(100, Math.round(42 + totals.speed * 4.2 + totals.stability * 2.4 - totals.chaos * 1.3 + noise * 20)));
+      return { build, totals, outcome, distanceMeters, noise };
+    }
+
+    function resultCopy(result) {
+      const { build, totals, outcome } = result;
+      const buildName = `${build.chassis.label} + ${build.wheels.label} + ${build.oddity.label}`;
+      const chickenNote = 'Kentucky Fried clucks approval.';
+
+      if (outcome === 'Success') {
+        return {
+          badge: '✅ Success',
+          recap: `${buildName}: bump bounced, crate missed, finish crossed. ${chickenNote}`,
+          hint: totals.chaos < 10 ? 'Add chaos for bigger cartoons.' : 'That should not have worked.'
+        };
+      }
+
+      if (outcome === 'Elegant Failure') {
+        return {
+          badge: '✨ Elegant Failure',
+          recap: `${buildName}: no finish, huge style. The hill salutes. ${chickenNote}`,
+          hint: 'Keep the chaos. Add one stable part.'
+        };
+      }
+
+      return {
+        badge: '🛑 Failure',
+        recap: `${buildName}: hill said yes, bump said no, crate said hello. ${chickenNote}`,
+        hint: 'Add Stability, then launch again.'
+      };
+    }
+
+    function resetCourseClass() {
+      course.classList.remove('running', 'success', 'failure', 'elegant');
+      void course.offsetWidth;
+    }
+
+    function runDerby() {
+      resetCourseClass();
+      course.classList.add('running');
+      startButton.disabled = true;
+      outcomeBadge.textContent = 'GO!';
+      recap.textContent = 'Mitch drops the flag. Kentucky Fried braces.';
+      distance.textContent = 'Distance: ...';
+      hint.textContent = 'Watch the bounce.';
+
+      const result = simulateRun();
+      const className = result.outcome === 'Success' ? 'success' : result.outcome === 'Elegant Failure' ? 'elegant' : 'failure';
+
+      window.setTimeout(() => {
+        course.classList.remove('running');
+        course.classList.add(className);
+        const copy = resultCopy(result);
+        outcomeBadge.textContent = copy.badge;
+        recap.textContent = copy.recap;
+        distance.textContent = `Distance: ${result.distanceMeters} meters. Outcome: ${result.outcome}.`;
+        hint.textContent = copy.hint;
+        startButton.disabled = false;
+      }, 760);
+    }
+
+    function tweakAgain() {
+      resetCourseClass();
+      outcomeBadge.textContent = 'Ready';
+      recap.textContent = 'Swap a part. Press Start.';
+      distance.textContent = 'Distance: 0 meters. Outcomes: Success, Failure, Elegant Failure.';
+      hint.textContent = 'Retry until the chicken respects you.';
+      startButton.focus();
+    }
+
+    form.addEventListener('change', updateStats);
+    startButton.addEventListener('click', runDerby);
+    tweakButton.addEventListener('click', tweakAgain);
+    updateStats();
+  </script>
+</body>
+</html>
