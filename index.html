@@ -622,7 +622,8 @@
       width: 118px;
       height: 78px;
       transform: rotate(10deg);
-      transition: left 640ms cubic-bezier(.18, 1.45, .35, 1), top 640ms cubic-bezier(.18, 1.45, .35, 1), transform 640ms cubic-bezier(.18, 1.45, .35, 1);
+      transition: none;
+      will-change: left, top, transform;
       z-index: 4;
     }
 
@@ -744,6 +745,30 @@
       filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
     }
 
+
+    .co-pilot {
+      position: absolute;
+      right: -17px;
+      top: -17px;
+      font-size: 25px;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+      z-index: 4;
+    }
+
+    .oddity-mount {
+      position: absolute;
+      left: 36px;
+      top: -12px;
+      font-size: 24px;
+      transform-origin: 50% 100%;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+      z-index: 3;
+    }
+
+    .contraption[data-oddity="whoopee"] .oddity-mount { left: 5px; top: 19px; }
+    .contraption[data-oddity="blower"] .oddity-mount { left: -5px; top: 14px; transform: rotate(-12deg); }
+    .contraption[data-oddity="umbrella"] .oddity-mount { left: 31px; top: -18px; transform: rotate(5deg); }
+
     .fx {
       position: absolute;
       opacity: 0;
@@ -761,26 +786,22 @@
     .bonk-ring { left: 60%; top: 48%; font-size: 2.1rem; }
 
     .running .contraption {
-      animation: flash-wobble 170ms infinite alternate ease-in-out, squash 340ms infinite ease-in-out;
+      will-change: left, top, transform;
     }
 
-    .course[data-run-phase="approach"] .contraption { left: 26%; top: 47%; transform: rotate(13deg) scale(1.02); }
-    .course[data-run-phase="bump"] .contraption { left: 41%; top: 56%; transform: rotate(-9deg) scale(1.05, 0.92); }
-    .course[data-run-phase="crate"] .contraption { left: 61%; top: 61%; transform: rotate(24deg) scale(1.02); }
-    .course[data-run-phase="finish"] .contraption { left: 80%; top: 67%; transform: rotate(15deg) scale(1.06); }
-    .course[data-run-phase="done"].failure .contraption { left: 59%; top: 64%; transform: rotate(142deg) scale(0.96, 0.82); }
-    .course[data-run-phase="done"].elegant .contraption { left: 72%; top: 45%; transform: rotate(390deg) scale(1.13); }
-    .course[data-run-phase="done"].success .contraption { left: 83%; top: 67%; transform: rotate(18deg) scale(1.08); }
+    .course.running .label {
+      display: none;
+    }
 
-    .course[data-run-phase="bump"] .impact,
-    .course[data-run-phase="bump"] .dust-a { animation: boom 760ms 1 ease-out; }
+    .course.at-bump .impact,
+    .course.at-bump .dust-a { animation: boom 760ms 1 ease-out; }
 
-    .course[data-run-phase="crate"] .crate-shape { animation: crate-jolt 620ms 1 ease-out; }
-    .course[data-run-phase="crate"] .bonk-ring,
-    .course[data-run-phase="crate"] .tumble-star,
-    .course[data-run-phase="crate"] .dust-b { animation: boom 760ms 1 ease-out; }
+    .course.at-crate .crate-shape { animation: crate-jolt 620ms 1 ease-out; }
+    .course.at-crate .bonk-ring,
+    .course.at-crate .tumble-star,
+    .course.at-crate .dust-b { animation: boom 760ms 1 ease-out; }
 
-    .course[data-run-phase="finish"] .sparkle { animation: pop 720ms 1 ease-out; }
+    .course.at-finish .sparkle { animation: pop 720ms 1 ease-out; }
 
     .running .wheel-assembly .wheel {
       animation: wheel-spin 220ms linear infinite;
@@ -796,10 +817,7 @@
     .running .dust-b { animation-delay: 160ms; }
 
     .success .contraption {
-      left: 83%;
-      top: 65%;
-      transform: rotate(18deg) scale(1.08);
-      animation: victory-bounce 520ms 2 ease-in-out;
+      will-change: left, top, transform;
     }
 
     .success .sparkle { animation: pop 720ms 2 ease-out; }
@@ -815,10 +833,7 @@
     .failure .bonk-ring { animation: boom 760ms 2 ease-out; }
 
     .elegant .contraption {
-      left: 72%;
-      top: 31%;
-      transform: rotate(390deg) scale(1.13);
-      animation: elegant-spin 760ms 1 ease-out;
+      will-change: left, top, transform;
     }
 
     .elegant .impact,
@@ -829,16 +844,6 @@
     @keyframes loading-pulse {
       from { width: 38%; filter: hue-rotate(0deg); }
       to { width: 92%; filter: hue-rotate(24deg); }
-    }
-
-    @keyframes flash-wobble {
-      from { translate: -1px -5px; rotate: -3deg; }
-      to { translate: 2px 5px; rotate: 4deg; }
-    }
-
-    @keyframes squash {
-      0%, 100% { scale: 1 1; }
-      50% { scale: 1.08 0.9; }
     }
 
     @keyframes wheel-spin { to { rotate: 360deg; } }
@@ -865,16 +870,6 @@
       0% { opacity: 0; transform: scale(0.2); }
       28% { opacity: 1; transform: scale(1.45) rotate(-8deg); }
       100% { opacity: 0; transform: scale(0.85) rotate(14deg); }
-    }
-
-    @keyframes victory-bounce {
-      0%, 100% { translate: 0 0; }
-      50% { translate: 0 -18px; }
-    }
-
-    @keyframes elegant-spin {
-      from { translate: -16px 18px; }
-      to { translate: 0 0; }
     }
 
     @keyframes crate-jolt {
@@ -986,7 +981,7 @@
 
       <section class="course-panel" aria-labelledby="course-title">
         <h2 id="course-title" class="sr-only">Course</h2>
-        <div id="course" class="course" data-run-phase="ready" aria-label="Visible side-view derby hill with bump, loose crate, and finish line">
+        <div id="course" class="course" data-run-phase="ready" data-motion-mode="continuous-hill" aria-label="Visible side-view derby hill with bump, loose crate, and finish line">
           <div class="track-line"></div>
           <div class="side-view-hill" aria-hidden="true"></div>
           <div class="course-path" aria-hidden="true"></div>
@@ -994,8 +989,8 @@
           <span class="label bump">〰️ bump</span>
           <span class="label crate">📦 crate</span>
           <span class="label finish">🏁 finish</span>
-          <div class="obstacle bump-shape" aria-hidden="true"></div>
-          <div class="obstacle crate-shape" aria-hidden="true"></div>
+          <div class="obstacle bump-shape" data-obstacle="bump" aria-hidden="true"></div>
+          <div class="obstacle crate-shape" data-obstacle="crate" aria-hidden="true"></div>
           <div class="finish-line" aria-hidden="true"></div>
           <span class="fx dust-a">💨</span>
           <span class="fx dust-b">💨</span>
@@ -1007,8 +1002,9 @@
             <div class="motion-trail" aria-hidden="true"></div>
             <div class="sprite-shadow" aria-hidden="true"></div>
             <div class="rig-body" aria-hidden="true"></div>
+            <div class="oddity-mount" aria-hidden="true">💨</div>
             <div class="wheel-assembly" aria-hidden="true"><span class="wheel rear"></span><span class="wheel front"></span></div>
-            <span class="chicken" title="Kentucky Fried">🐔</span>
+            <span class="co-pilot chicken" title="Kentucky Fried">🐔</span>
           </div>
         </div>
       </section>
@@ -1116,15 +1112,29 @@
     const hint = document.querySelector('#hint');
 
     const statIds = ['stability', 'speed', 'chaos'];
-    const RUN_DURATION_MS = 6_400;
-    const RUN_PHASES = [
-      { name: 'approach', at: 0, copy: 'Rolling into the hill... wobble visible.' },
-      { name: 'bump', at: 1_650, copy: 'Bump contact! Springs, elbows, and bad ideas react.' },
-      { name: 'crate', at: 3_650, copy: 'Crate collision zone. The machine physically eats the joke.' },
-      { name: 'finish', at: 5_200, copy: 'Final slide toward the flag. Nobody breathe.' },
-    ];
+    const FIXED_TIMESTEP_SECONDS = 1 / 60;
+    const GRAVITY_ALONG_SLOPE = 24;
+    const FRICTION_COEFFICIENT = 0.22;
+    const CONTACT_OFFSET = 0;
+    const PHYSICS_CONFIG = {
+      finishDistance: 100,
+      startXPercent: 7,
+      trackWidthPercent: 82,
+      naturalStopSpeed: 1.15,
+      requiredSlowFrames: 36,
+      obstacles: [
+        { id: 'bump', at: 29, radius: 2.2, damping: 0.84, normalImpulse: 1.8, angularImpulse: -2.4, stabilityScale: 0.014, chaosScale: 0.06 },
+        { id: 'crate', at: 58, radius: 2.6, damping: 0.68, normalImpulse: 2.7, angularImpulse: 4.8, stabilityScale: 0.022, chaosScale: 0.08 },
+      ],
+    };
     let runCount = 0;
-    let phaseTimers = [];
+    let runAnimationFrame = 0;
+    let activeRunStartedAt = 0;
+    let lastPhysicsTime = 0;
+    let fixedAccumulatorSeconds = 0;
+    let activeResult = null;
+    let activeClassName = '';
+    let physicsState = createPhysicsState();
 
     function selectedBuild() {
       const data = new FormData(form);
@@ -1152,9 +1162,15 @@
       const data = new FormData(form);
       const chassis = data.get('chassis') || 'bathtub';
       const wheels = data.get('wheels') || 'cart';
+      const oddity = data.get('oddity') || 'whoopee';
+      const oddityMount = contraption.querySelector('.oddity-mount');
       contraption.dataset.chassis = chassis;
+      contraption.dataset.oddity = oddity;
       contraption.classList.remove('wheel-cart', 'wheel-casters', 'wheel-wagon');
       contraption.classList.add(`wheel-${wheels}`);
+      if (oddityMount) {
+        oddityMount.textContent = oddity === 'umbrella' ? '\u2602\uFE0F' : oddity === 'blower' ? '\u{1F343}' : '\u{1F4A8}';
+      }
     }
 
     function updateStats() {
@@ -1205,97 +1221,281 @@
       const build = selectedBuild();
       const totals = updateStats();
       const noise = seededNoise(build, totals);
-      const successScore = totals.stability * 0.62 + totals.speed * 0.28 - totals.chaos * 0.18 + noise * 4;
-      const spectacleScore = totals.chaos * 0.58 + totals.speed * 0.34 - totals.stability * 0.16 + noise * 5;
-
-      let outcome = 'Failure';
-      if (successScore >= 7.4 && noise < 1.08) outcome = 'Success';
-      if (spectacleScore >= 8.2 && successScore < 9.8) outcome = 'Elegant Failure';
-      if (successScore >= 10.2) outcome = 'Success';
-
-      const distanceMeters = Math.max(19, Math.min(100, Math.round(42 + totals.speed * 4.2 + totals.stability * 2.4 - totals.chaos * 1.3 + noise * 20)));
-      return { build, totals, outcome, distanceMeters, noise };
+      return { build, totals, outcome: 'Pending', distanceMeters: 0, noise, stopReason: '' };
     }
 
     function resultCopy(result) {
-      const { build, totals, outcome } = result;
+      const { build, totals, outcome, stopReason, distanceMeters } = result;
       const buildName = `${build.chassis.label} + ${build.wheels.label} + ${build.oddity.label}`;
       const chickenNote = 'Kentucky Fried clucks approval.';
 
       if (outcome === 'Success') {
         return {
-          badge: '✅ Success',
-          recap: `${buildName}: bump bounced, crate missed, finish crossed. ${chickenNote}`,
+          badge: '\u2705 Success',
+          recap: `${buildName}: physics carried the rig across the finish at ${distanceMeters} meters. ${chickenNote}`,
           hint: totals.chaos < 10 ? 'Add chaos for bigger cartoons.' : 'That should not have worked.'
         };
       }
 
       if (outcome === 'Elegant Failure') {
         return {
-          badge: '✨ Elegant Failure',
-          recap: `${buildName}: no finish, huge style. The hill salutes. ${chickenNote}`,
+          badge: '\u2728 Elegant Failure',
+          recap: `${buildName}: stopped at ${distanceMeters} meters after a continuous crate tumble. ${chickenNote}`,
           hint: 'Keep the chaos. Add one stable part.'
         };
       }
 
       return {
-        badge: '🛑 Failure',
-        recap: `${buildName}: hill said yes, bump said no, crate said hello. ${chickenNote}`,
+        badge: '\u{1F6D1} Failure',
+        recap: `${buildName}: rolled to a natural stop at ${distanceMeters} meters. ${chickenNote}`,
         hint: 'Add Stability, then launch again.'
       };
     }
 
-    function clearPhaseTimers() {
-      phaseTimers.forEach((timer) => window.clearTimeout(timer));
-      phaseTimers = [];
+    function cancelRunAnimation() {
+      if (runAnimationFrame) window.cancelAnimationFrame(runAnimationFrame);
+      runAnimationFrame = 0;
+      activeRunStartedAt = 0;
+      lastPhysicsTime = 0;
+      fixedAccumulatorSeconds = 0;
     }
 
-    function setRunPhase(phase, phaseCopy = '') {
-      course.dataset.runPhase = phase;
-      if (phaseCopy) recap.textContent = phaseCopy;
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function terrainYAt(x) {
+      const progress = clamp(x / PHYSICS_CONFIG.finishDistance, 0, 1);
+      return 35 + progress * 43 + Math.sin(progress * Math.PI * 1.15) * 4.2 + Math.sin(progress * Math.PI * 4.6) * 1.2;
+    }
+
+    function terrainSlopeAt(x) {
+      const progress = clamp(x / PHYSICS_CONFIG.finishDistance, 0, 1);
+      const dYdProgress = 43 + Math.cos(progress * Math.PI * 1.15) * 4.2 * Math.PI * 1.15 + Math.cos(progress * Math.PI * 4.6) * 1.2 * Math.PI * 4.6;
+      return dYdProgress / PHYSICS_CONFIG.finishDistance;
+    }
+
+    function normalizeVector(x, y) {
+      const length = Math.hypot(x, y) || 1;
+      return { x: x / length, y: y / length };
+    }
+
+    function createPhysicsState(result = null) {
+      const totals = result?.totals || { stability: 0, speed: 0, chaos: 0 };
+      const baseVelocity = result ? 10 + totals.speed * 0.75 + totals.chaos * 0.12 : 0;
+      const slope = terrainSlopeAt(0);
+      const angle = Math.atan(slope);
+      const tangent = normalizeVector(1, slope);
+      const obstacles = Object.fromEntries(PHYSICS_CONFIG.obstacles.map((obstacle) => [obstacle.id, { ...obstacle, impulseApplied: false }]));
+      const state = {
+        position: { x: 0, y: terrainYAt(0) - CONTACT_OFFSET },
+        velocity: { x: baseVelocity * tangent.x, y: baseVelocity * tangent.y },
+        rotation: angle,
+        angularVelocity: 0,
+        slopeAngle: angle * (180 / Math.PI),
+        grounded: true,
+        crashed: false,
+        stopReason: '',
+        slowFrames: 0,
+        frameCount: 0,
+        requiredSlowFrames: PHYSICS_CONFIG.requiredSlowFrames,
+        obstacles,
+      };
+      window.__kookyPhysicsState = state;
+      return state;
+    }
+
+    function integratePhysicsStep(dt, result) {
+      const slope = terrainSlopeAt(physicsState.position.x);
+      const angle = Math.atan(slope);
+      const tangent = normalizeVector(1, slope);
+      const velocity = physicsState.velocity;
+      const crashDrag = physicsState.crashed ? 0.74 : 1;
+      const stability = result?.totals?.stability || 0;
+      const friction = FRICTION_COEFFICIENT + Math.max(0, 8 - stability) * 0.012 + (physicsState.crashed ? 0.55 : 0);
+      const acceleration = {
+        x: GRAVITY_ALONG_SLOPE * tangent.x * crashDrag - friction * velocity.x,
+        y: GRAVITY_ALONG_SLOPE * tangent.y * crashDrag - friction * velocity.y,
+      };
+
+      velocity.x += acceleration.x * dt;
+      velocity.y += acceleration.y * dt;
+      physicsState.position.x += velocity.x * dt;
+      physicsState.position.y += velocity.y * dt;
+      physicsState.rotation += physicsState.angularVelocity * dt;
+      physicsState.angularVelocity *= Math.max(0, 1 - (physicsState.crashed ? 2.8 : 1.1) * dt);
+      physicsState.slopeAngle = angle * (180 / Math.PI);
+      physicsState.frameCount += 1;
+    }
+
+    function resolveGroundContact() {
+      const terrainY = terrainYAt(physicsState.position.x);
+      const slope = terrainSlopeAt(physicsState.position.x);
+      const angle = Math.atan(slope);
+      physicsState.position.y = terrainY - CONTACT_OFFSET;
+      physicsState.rotation = angle;
+      physicsState.slopeAngle = angle * (180 / Math.PI);
+      physicsState.grounded = true;
+    }
+
+    function applyObstacleImpulse(obstacle, result) {
+      const stability = result?.totals?.stability || 0;
+      const chaos = result?.totals?.chaos || 0;
+      const slope = terrainSlopeAt(physicsState.position.x);
+      const normal = normalizeVector(-slope, 1);
+      const damping = clamp(obstacle.damping + stability * obstacle.stabilityScale - chaos * 0.006, 0.45, 0.92);
+      const impulse = obstacle.normalImpulse * (1 + chaos * obstacle.chaosScale);
+      physicsState.velocity.x = Math.max(0.8, physicsState.velocity.x * damping + normal.x * impulse);
+      physicsState.velocity.y = physicsState.velocity.y * damping + normal.y * impulse;
+      physicsState.angularVelocity += obstacle.angularImpulse * (1 + chaos * 0.05);
+      physicsState.crashed = physicsState.crashed || obstacle.id === 'crate';
+      obstacle.impulseApplied = true;
+    }
+
+    function resolveCollisions(result) {
+      for (const obstacle of Object.values(physicsState.obstacles)) {
+        if (!obstacle.impulseApplied && Math.abs(physicsState.position.x - obstacle.at) <= obstacle.radius) {
+          applyObstacleImpulse(obstacle, result);
+        }
+      }
+
+      const speed = Math.hypot(physicsState.velocity.x, physicsState.velocity.y);
+      if (physicsState.position.x >= PHYSICS_CONFIG.finishDistance) {
+        physicsState.position.x = PHYSICS_CONFIG.finishDistance;
+        physicsState.position.y = terrainYAt(PHYSICS_CONFIG.finishDistance) - CONTACT_OFFSET;
+        physicsState.velocity.x = 0;
+        physicsState.velocity.y = 0;
+        physicsState.stopReason = 'finish';
+      } else if (speed < PHYSICS_CONFIG.naturalStopSpeed) {
+        physicsState.slowFrames += 1;
+        if (physicsState.slowFrames >= physicsState.requiredSlowFrames) physicsState.stopReason = 'natural-stop';
+      } else {
+        physicsState.slowFrames = 0;
+      }
+
+      return physicsState.stopReason;
+    }
+
+    function updateContactClasses(progress) {
+      course.classList.toggle('at-bump', Boolean(physicsState.obstacles.bump?.impulseApplied) || progress >= 0.29);
+      course.classList.toggle('at-crate', Boolean(physicsState.obstacles.crate?.impulseApplied) || progress >= 0.58);
+      course.classList.toggle('at-finish', progress >= 0.82);
+      if (!physicsState.obstacles.bump?.impulseApplied) recap.textContent = 'Rolling as one goofy machine down the hill.';
+      else if (!physicsState.obstacles.crate?.impulseApplied) recap.textContent = 'Bump impulse! Momentum keeps carrying the rig downhill.';
+      else if (progress < 0.82) recap.textContent = 'Crate impulse! It tumbles, slides, and keeps moving.';
+      else recap.textContent = 'Final slide toward the flag. Nobody breathe.';
+    }
+
+    function renderPhysicsFrame(resultClass = '') {
+      const progress = clamp(physicsState.position.x / PHYSICS_CONFIG.finishDistance, 0, 1);
+      const left = PHYSICS_CONFIG.startXPercent + progress * PHYSICS_CONFIG.trackWidthPercent;
+      const top = physicsState.position.y;
+      let rotation = physicsState.rotation * (180 / Math.PI);
+      let scaleX = 1.02;
+      let scaleY = 1.0 + Math.min(0.08, Math.abs(physicsState.angularVelocity) * 0.006);
+
+      if (physicsState.stopReason && resultClass === 'failure') {
+        rotation += 36;
+        scaleX = 0.96;
+        scaleY = 0.86;
+      } else if (physicsState.stopReason && resultClass === 'elegant') {
+        rotation += 18;
+        scaleX = 1.08;
+        scaleY = 1.08;
+      } else if (physicsState.stopReason && resultClass === 'success') {
+        scaleX = 1.08;
+        scaleY = 1.08;
+      }
+
+      contraption.style.left = `${left}%`;
+      contraption.style.top = `${top}%`;
+      contraption.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scaleX}, ${scaleY})`;
+      course.style.setProperty('--run-progress', progress.toFixed(3));
+      updateContactClasses(progress);
     }
 
     function resetCourseClass() {
-      clearPhaseTimers();
-      course.classList.remove('running', 'success', 'failure', 'elegant');
-      setRunPhase('ready');
+      cancelRunAnimation();
+      course.classList.remove('running', 'success', 'failure', 'elegant', 'at-bump', 'at-crate', 'at-finish');
+      course.dataset.runPhase = 'ready';
+      activeResult = null;
+      activeClassName = '';
+      physicsState = createPhysicsState();
+      renderPhysicsFrame();
       void course.offsetWidth;
+    }
+
+    function finalizePhysicsResult(result) {
+      const distanceMeters = Math.round(clamp(physicsState.position.x, 0, PHYSICS_CONFIG.finishDistance));
+      const stopReason = physicsState.stopReason || 'natural-stop';
+      let outcome = 'Failure';
+      if (stopReason === 'finish') outcome = 'Success';
+      else if (physicsState.crashed && distanceMeters >= 58) outcome = 'Elegant Failure';
+      result.distanceMeters = distanceMeters;
+      result.stopReason = stopReason;
+      result.outcome = outcome;
+      return result;
+    }
+
+    function finishRun(result, className) {
+      cancelRunAnimation();
+      course.classList.remove('running');
+      course.classList.add(className, 'at-bump', 'at-crate');
+      if (physicsState.stopReason === 'finish') course.classList.add('at-finish');
+      course.dataset.runPhase = 'done';
+      renderPhysicsFrame(className);
+      builderOverlay.classList.remove('is-hidden');
+      resultOverlay.classList.remove('is-hidden');
+      const copy = resultCopy(result);
+      outcomeBadge.textContent = copy.badge;
+      recap.textContent = copy.recap;
+      distance.textContent = `Distance: ${result.distanceMeters} meters. Outcome: ${result.outcome}.`;
+      hint.textContent = copy.hint;
+      startButton.disabled = false;
     }
 
     function runDerby() {
       resetCourseClass();
       course.classList.add('running');
+      course.dataset.runPhase = 'rolling';
       builderOverlay.classList.add('is-hidden');
       resultOverlay.classList.add('is-hidden');
       startButton.disabled = true;
       outcomeBadge.textContent = 'GO!';
       recap.textContent = 'Mitch drops the flag. Kentucky Fried braces.';
       distance.textContent = 'Watching the contraption roll downhill...';
-      hint.textContent = 'Approach → bump → crate → finish.';
+      hint.textContent = 'No map. Just the machine, the hill, and real velocity.';
 
-      const result = simulateRun();
-      const className = result.outcome === 'Success' ? 'success' : result.outcome === 'Elegant Failure' ? 'elegant' : 'failure';
+      activeResult = simulateRun();
+      physicsState = createPhysicsState(activeResult);
+      activeRunStartedAt = performance.now();
+      lastPhysicsTime = activeRunStartedAt;
+      fixedAccumulatorSeconds = 0;
 
-      const [openingPhase, ...laterPhases] = RUN_PHASES;
-      setRunPhase(openingPhase.name, openingPhase.copy);
-      laterPhases.forEach((phase) => {
-        phaseTimers.push(window.setTimeout(() => setRunPhase(phase.name, phase.copy), phase.at));
-      });
+      const tick = (now) => {
+        fixedAccumulatorSeconds += Math.max(0, (now - lastPhysicsTime) / 1000);
+        lastPhysicsTime = now;
+        let stopReason = '';
+        while (fixedAccumulatorSeconds >= FIXED_TIMESTEP_SECONDS && !stopReason) {
+          integratePhysicsStep(FIXED_TIMESTEP_SECONDS, activeResult);
+          resolveGroundContact();
+          const collisionStopReason = resolveCollisions(activeResult);
+          renderPhysicsFrame();
+          stopReason = collisionStopReason;
+          fixedAccumulatorSeconds -= FIXED_TIMESTEP_SECONDS;
+        }
 
-      phaseTimers.push(window.setTimeout(() => {
-        clearPhaseTimers();
-        course.classList.remove('running');
-        course.classList.add(className);
-        setRunPhase('done');
-        builderOverlay.classList.remove('is-hidden');
-        resultOverlay.classList.remove('is-hidden');
-        const copy = resultCopy(result);
-        outcomeBadge.textContent = copy.badge;
-        recap.textContent = copy.recap;
-        distance.textContent = `Distance: ${result.distanceMeters} meters. Outcome: ${result.outcome}.`;
-        hint.textContent = copy.hint;
-        startButton.disabled = false;
-      }, RUN_DURATION_MS));
+        if (!stopReason) {
+          runAnimationFrame = window.requestAnimationFrame(tick);
+          return;
+        }
+
+        finalizePhysicsResult(activeResult);
+        activeClassName = activeResult.outcome === 'Success' ? 'success' : activeResult.outcome === 'Elegant Failure' ? 'elegant' : 'failure';
+        finishRun(activeResult, activeClassName);
+      };
+      renderPhysicsFrame();
+      runAnimationFrame = window.requestAnimationFrame(tick);
     }
 
     function tweakAgain() {
