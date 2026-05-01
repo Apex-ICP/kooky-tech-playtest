@@ -6,19 +6,20 @@
   <title>Prototype 0: Unauthorized Derby Test</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #140f1f;
-      --panel: rgba(31, 24, 47, 0.91);
-      --panel-strong: #261d3d;
-      --ink: #fff8dc;
-      --muted: #c8badf;
+      color-scheme: light;
+      --bg: #8ee5ff;
+      --panel: rgba(255, 252, 213, 0.9);
+      --panel-strong: #fff2a8;
+      --ink: #2a1b13;
+      --muted: #6a4b31;
       --gold: #ffd166;
       --pink: #ef476f;
       --green: #06d6a0;
       --blue: #118ab2;
       --danger: #ff7b54;
-      --line: rgba(255, 255, 255, 0.16);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --line: rgba(82, 48, 24, 0.22);
+      --outline: #2b1b10;
+      font-family: "Trebuchet MS", "Comic Sans MS", Inter, ui-sans-serif, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
@@ -27,42 +28,43 @@
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at 18% 12%, rgba(239, 71, 111, 0.28), transparent 28rem),
-        radial-gradient(circle at 82% 2%, rgba(17, 138, 178, 0.22), transparent 24rem),
-        linear-gradient(135deg, #130d1d 0%, #1b1530 50%, #0f1e2b 100%);
+        radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.78), transparent 7rem),
+        radial-gradient(circle at 82% 4%, rgba(255, 229, 89, 0.74), transparent 8rem),
+        linear-gradient(180deg, #7fe7ff 0%, #bff5ff 50%, #f8dd80 100%);
       color: var(--ink);
     }
 
     main {
-      width: min(1480px, calc(100% - 16px));
+      width: min(1540px, calc(100% - 10px));
       min-height: 100vh;
       margin: 0 auto;
-      padding: 8px 0;
+      padding: 5px 0;
     }
 
     .hero {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: clamp(10px, 1.8vw, 16px);
-      background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(239, 71, 111, 0.09)), var(--panel);
-      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+      border: 3px solid var(--outline);
+      border-radius: 18px 18px 30px 18px;
+      padding: clamp(8px, 1.5vw, 13px) clamp(11px, 2vw, 18px);
+      background: linear-gradient(135deg, #fff5a8, #ffbd59 58%, #ff7a6a);
+      box-shadow: 5px 6px 0 #2a1b13, 0 11px 26px rgba(95, 57, 28, 0.2);
       overflow: hidden;
       position: relative;
+      transform: rotate(-0.35deg);
     }
 
     .hero::after {
-      content: "⚙︎";
+      content: "TOY HILL";
       position: absolute;
       right: 16px;
-      top: -30px;
-      font-size: 110px;
-      color: rgba(255, 255, 255, 0.045);
-      transform: rotate(-14deg);
+      top: 10px;
+      font-size: clamp(1.2rem, 4.6vw, 4.2rem);
+      color: rgba(255, 255, 255, 0.32);
+      transform: rotate(8deg);
     }
 
     .eyebrow {
       margin: 0 0 4px;
-      color: var(--gold);
+      color: #8b1d2c;
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -89,14 +91,29 @@
 
     .stage-shell {
       position: relative;
-      min-height: calc(100vh - 128px);
-      margin-top: 8px;
-      border: 1px solid var(--line);
-      border-radius: 26px;
+      min-height: calc(100vh - 112px);
+      margin-top: 7px;
+      border: 4px solid var(--outline);
+      border-radius: 24px;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.035);
-      box-shadow: 0 24px 68px rgba(0, 0, 0, 0.34);
+      background: #91e7ff;
+      box-shadow: 7px 8px 0 #2a1b13, 0 20px 42px rgba(104, 70, 26, 0.22);
       isolation: isolate;
+    }
+
+    .stage-dominant-correction::before,
+    .paper-grain {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(43, 27, 16, 0.45) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.82) 0 1px, transparent 2px);
+      background-size: 42px 38px, 57px 51px;
+      mix-blend-mode: multiply;
     }
 
     .load-screen {
@@ -106,17 +123,19 @@
       display: grid;
       place-items: center;
       padding: 22px;
-      background: radial-gradient(circle at 50% 42%, rgba(255, 209, 102, 0.14), transparent 15rem), #030205;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.75), transparent 10rem),
+        linear-gradient(180deg, #66d9ff 0%, #ffd86d 100%);
       transition: opacity 260ms ease, transform 260ms ease;
     }
 
     .load-card {
       width: min(520px, 94%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 24px;
+      border: 4px solid var(--outline);
+      border-radius: 22px;
       padding: clamp(18px, 5vw, 34px);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
-      box-shadow: 0 24px 80px rgba(0,0,0,0.62);
+      background: #fff9b7;
+      box-shadow: 7px 8px 0 #2a1b13, 0 24px 60px rgba(125, 75, 20, 0.28);
       text-align: center;
     }
 
@@ -187,11 +206,11 @@
     }
 
     .panel {
-      border: 1px solid var(--line);
-      border-radius: 20px;
+      border: 3px solid var(--outline);
+      border-radius: 18px;
       background: var(--panel);
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
-      padding: 14px;
+      box-shadow: 5px 6px 0 rgba(43, 27, 16, 0.92), 0 12px 24px rgba(100, 64, 24, 0.18);
+      padding: 12px;
     }
 
     .builder-overlay,
@@ -199,9 +218,9 @@
       position: absolute;
       z-index: 12;
       width: min(350px, calc(100% - 28px));
-      background: rgba(22, 16, 34, 0.72);
-      border-color: rgba(255, 255, 255, 0.24);
-      backdrop-filter: blur(14px) saturate(1.2);
+      background: rgba(255, 252, 213, 0.84);
+      border-color: var(--outline);
+      backdrop-filter: blur(6px) saturate(1.1);
     }
 
     .builder-overlay {
@@ -272,7 +291,7 @@
       padding: 8px 6px;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.045);
+      background: rgba(255, 255, 255, 0.58);
       cursor: pointer;
       text-align: center;
       transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
@@ -282,7 +301,7 @@
     .choice:has(input:checked) {
       transform: translateY(-2px) scale(1.02);
       border-color: rgba(255, 209, 102, 0.7);
-      background: rgba(255, 209, 102, 0.1);
+      background: rgba(255, 219, 80, 0.58);
     }
 
     .choice input {
@@ -430,7 +449,7 @@
       margin: 11px 0;
       padding: 10px;
       border-radius: 16px;
-      background: rgba(0, 0, 0, 0.23);
+      background: rgba(255, 184, 64, 0.23);
     }
 
     .stat-row {
@@ -444,7 +463,7 @@
     .meter {
       height: 9px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.11);
+      background: rgba(82, 48, 24, 0.14);
       overflow: hidden;
     }
 
@@ -493,9 +512,10 @@
       min-height: 560px;
       overflow: hidden;
       background:
-        radial-gradient(circle at 17% 15%, rgba(255, 255, 255, 0.28), transparent 7rem),
-        radial-gradient(circle at 83% 18%, rgba(255, 209, 102, 0.18), transparent 9rem),
-        linear-gradient(180deg, #55b5d5 0 42%, #7fd29e 42% 100%);
+        radial-gradient(circle at 16% 15%, rgba(255, 255, 255, 0.95) 0 34px, transparent 35px),
+        radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.8) 0 58px, transparent 59px),
+        radial-gradient(circle at 79% 15%, #ffe56b 0 60px, rgba(255, 229, 107, 0.35) 61px 96px, transparent 97px),
+        linear-gradient(180deg, #61d9ff 0 47%, #89e883 47% 73%, #ffd36b 73% 100%);
     }
 
     .course::before {
@@ -503,10 +523,10 @@
       position: absolute;
       left: -9%; right: -9%; bottom: 0; height: 48%;
       background:
-        repeating-linear-gradient(110deg, rgba(255,255,255,0.11) 0 7px, transparent 7px 34px),
-        linear-gradient(165deg, transparent 0 8%, #8a5a34 8% 18%, #5b351f 18% 47%, #65401f 47% 100%);
-      border-top: 8px solid rgba(255, 209, 102, 0.64);
-      clip-path: polygon(0 11%, 31% 23%, 53% 39%, 72% 57%, 100% 70%, 100% 100%, 0 100%);
+        repeating-linear-gradient(110deg, rgba(255,255,255,0.18) 0 7px, transparent 7px 34px),
+        linear-gradient(165deg, transparent 0 7%, #d99a4a 7% 16%, #8f5c28 16% 52%, #704018 52% 100%);
+      border-top: 10px solid #ffe08a;
+      clip-path: polygon(0 6%, 16% 12%, 30% 19%, 42% 32%, 52% 39%, 64% 55%, 78% 64%, 100% 74%, 100% 100%, 0 100%);
       opacity: 1;
     }
 
@@ -522,7 +542,7 @@
       position: absolute;
       padding: 5px 8px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.48);
+      background: rgba(255, 249, 183, 0.9);
       border: 1px solid var(--line);
       color: var(--ink);
       font-size: 0.73rem;
@@ -544,11 +564,11 @@
       z-index: 1;
       pointer-events: none;
       background:
-        radial-gradient(circle at 24% 47%, rgba(255, 209, 102, 0.18) 0 18px, transparent 19px),
-        radial-gradient(circle at 76% 74%, rgba(255, 248, 220, 0.15) 0 15px, transparent 16px),
-        linear-gradient(165deg, transparent 0 10%, #8f6136 10% 20%, #6d421f 20% 100%);
-      clip-path: polygon(0 3%, 29% 16%, 50% 34%, 72% 55%, 100% 68%, 100% 100%, 0 100%);
-      filter: drop-shadow(0 -6px 0 rgba(255, 209, 102, 0.28));
+        radial-gradient(circle at 24% 47%, rgba(255, 209, 102, 0.24) 0 18px, transparent 19px),
+        radial-gradient(circle at 76% 74%, rgba(255, 248, 220, 0.2) 0 15px, transparent 16px),
+        linear-gradient(165deg, transparent 0 8%, #e0aa50 8% 18%, #946022 18% 100%);
+      clip-path: polygon(0 3%, 12% 8%, 28% 15%, 40% 28%, 52% 36%, 66% 55%, 81% 64%, 100% 73%, 100% 100%, 0 100%);
+      filter: drop-shadow(0 -7px 0 #fff0a7) drop-shadow(0 -11px 0 rgba(43, 27, 16, 0.28));
     }
 
     .course-path {
@@ -559,22 +579,37 @@
       height: 17%;
       z-index: 2;
       border-radius: 999px;
-      border-top: 11px solid rgba(255, 248, 220, 0.72);
+      border-top: 15px solid rgba(255, 249, 183, 0.92);
       transform: rotate(14deg);
       transform-origin: left center;
-      box-shadow: 0 15px 0 rgba(88, 45, 20, 0.42);
+      box-shadow: 0 18px 0 rgba(115, 62, 22, 0.5), 0 -5px 0 rgba(43, 27, 16, 0.18);
       pointer-events: none;
+    }
+
+    .start-ramp {
+      position: absolute;
+      left: 4%;
+      top: 45%;
+      width: 130px;
+      height: 54px;
+      z-index: 3;
+      transform: rotate(13deg);
+      background: linear-gradient(135deg, #ff6f61, #ffd166);
+      border: 4px solid var(--outline);
+      border-radius: 10px 14px 22px 8px;
+      box-shadow: 5px 6px 0 rgba(43, 27, 16, 0.35);
     }
 
     .obstacle.bump-shape {
       position: absolute;
       left: 42%;
       top: 68%;
-      width: 78px;
-      height: 31px;
+      width: 112px;
+      height: 46px;
       border-radius: 90px 90px 8px 8px;
-      background: #7f5539;
-      border: 2px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(180deg, #bb7a35, #734018);
+      border: 4px solid var(--outline);
+      box-shadow: inset 0 10px 0 rgba(255, 244, 177, 0.22), 4px 5px 0 rgba(43, 27, 16, 0.35);
       z-index: 3;
     }
 
@@ -582,11 +617,14 @@
       position: absolute;
       left: 64%;
       top: 72%;
-      width: 48px;
-      height: 48px;
+      width: 78px;
+      height: 78px;
       border-radius: 7px;
-      background: linear-gradient(135deg, #b56b2c, #6f3f1d);
-      border: 2px dashed rgba(255, 255, 255, 0.28);
+      background:
+        linear-gradient(45deg, transparent 42%, #6f3f1d 43% 57%, transparent 58%),
+        linear-gradient(-45deg, transparent 42%, #6f3f1d 43% 57%, transparent 58%),
+        linear-gradient(135deg, #e58a31, #9e5522);
+      border: 4px solid var(--outline);
       transform: rotate(-9deg);
       z-index: 3;
     }
@@ -619,8 +657,8 @@
       position: absolute;
       left: 7%;
       top: 34%;
-      width: 118px;
-      height: 78px;
+      width: 154px;
+      height: 100px;
       transform: rotate(10deg);
       transition: none;
       will-change: left, top, transform;
@@ -654,12 +692,12 @@
       position: absolute;
       left: 18px;
       top: 18px;
-      width: 78px;
-      height: 38px;
-      border-radius: 15px 18px 8px 10px;
-      background: linear-gradient(135deg, var(--pink), var(--gold));
-      border: 2px solid rgba(255, 255, 255, 0.78);
-      box-shadow: inset 0 8px 0 rgba(255,255,255,0.18), 0 10px 16px rgba(0, 0, 0, 0.28);
+      width: 102px;
+      height: 48px;
+      border-radius: 18px 20px 10px 12px;
+      background: linear-gradient(135deg, #ff5d7a, #ffd166);
+      border: 4px solid var(--outline);
+      box-shadow: inset 0 10px 0 rgba(255,255,255,0.22), 5px 7px 0 rgba(43, 27, 16, 0.35);
       z-index: 2;
     }
 
@@ -737,32 +775,104 @@
     .contraption.wheel-wagon .wheel-assembly .wheel { width: 25px; height: 25px; background: radial-gradient(circle, #f8f0d0 0 14%, #9b2d2d 15% 26%, transparent 27% 34%, #9b2d2d 35% 47%, transparent 48% 58%, #9b2d2d 59% 72%, #1c171a 73%); }
     .contraption.wheel-wagon .wheel-assembly::before { background: #b93131; }
 
-    .chicken {
-      position: absolute;
-      right: -17px;
-      top: -17px;
-      font-size: 25px;
-      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
-    }
-
-
     .co-pilot {
       position: absolute;
-      right: -17px;
-      top: -17px;
-      font-size: 25px;
-      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+      right: -13px;
+      top: -19px;
+      width: 33px;
+      height: 38px;
+      filter: drop-shadow(3px 4px 0 rgba(43, 27, 16, 0.3));
       z-index: 4;
+    }
+
+    .cartoon-chicken::before,
+    .cartoon-chicken::after {
+      content: "";
+      position: absolute;
+      box-sizing: border-box;
+    }
+
+    .cartoon-chicken::before {
+      left: 5px;
+      top: 9px;
+      width: 24px;
+      height: 24px;
+      border-radius: 55% 45% 50% 50%;
+      background: #fff7dc;
+      border: 3px solid var(--outline);
+      box-shadow: 12px -8px 0 -8px #e83b45, 15px -3px 0 -10px #e83b45;
+    }
+
+    .cartoon-chicken::after {
+      right: -2px;
+      top: 17px;
+      border-left: 10px solid #ffb02e;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      filter: drop-shadow(1px 0 0 var(--outline));
     }
 
     .oddity-mount {
       position: absolute;
       left: 36px;
       top: -12px;
-      font-size: 24px;
+      width: 46px;
+      height: 42px;
       transform-origin: 50% 100%;
-      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35));
+      filter: drop-shadow(3px 4px 0 rgba(43, 27, 16, 0.25));
       z-index: 3;
+    }
+
+    .oddity-mount::before,
+    .oddity-mount::after,
+    .oddity-mount span {
+      content: "";
+      position: absolute;
+      box-sizing: border-box;
+    }
+
+    .cartoon-whoopee::before {
+      left: 5px; top: 20px; width: 33px; height: 16px;
+      border-radius: 55% 45% 44% 56%;
+      background: #e84855;
+      border: 3px solid var(--outline);
+    }
+
+    .cartoon-whoopee::after {
+      left: 30px; top: 13px; width: 14px; height: 15px;
+      border-radius: 8px 8px 2px 2px;
+      background: #ffd166;
+      border: 3px solid var(--outline);
+      transform: rotate(22deg);
+    }
+
+    .cartoon-umbrella::before {
+      left: 0; top: 3px; width: 48px; height: 24px;
+      border-radius: 48px 48px 5px 5px;
+      background: conic-gradient(from 180deg at 50% 100%, #ff5d7a 0 35deg, #ffd166 36deg 72deg, #2ec4b6 73deg 110deg, #ff5d7a 111deg 180deg);
+      border: 3px solid var(--outline);
+      clip-path: polygon(0 100%, 8% 32%, 50% 0, 92% 32%, 100% 100%);
+    }
+
+    .cartoon-umbrella::after {
+      left: 22px; top: 23px; width: 13px; height: 21px;
+      border-left: 4px solid var(--outline);
+      border-bottom: 4px solid var(--outline);
+      border-radius: 0 0 0 16px;
+    }
+
+    .cartoon-blower::before {
+      left: 5px; top: 18px; width: 34px; height: 18px;
+      border-radius: 12px 18px 18px 8px;
+      background: #2bb7e8;
+      border: 3px solid var(--outline);
+    }
+
+    .cartoon-blower::after {
+      left: -6px; top: 22px; width: 18px; height: 10px;
+      border-radius: 999px 3px 3px 999px;
+      background: #ffd166;
+      border: 3px solid var(--outline);
     }
 
     .contraption[data-oddity="whoopee"] .oddity-mount { left: 5px; top: 19px; }
@@ -943,6 +1053,7 @@
       .course { min-height: 0; }
       .label { font-size: 0.66rem; padding: 4px 6px; }
       .finish-line { height: 68px; }
+      .start-ramp { width: 70px; height: 30px; border-width: 3px; box-shadow: 3px 4px 0 rgba(43, 27, 16, 0.35); }
       .obstacle.bump-shape { width: 50px; height: 20px; }
       .obstacle.crate-shape { width: 31px; height: 31px; }
       .contraption { width: 78px; height: 52px; }
@@ -968,7 +1079,8 @@
       <p class="tagline"><span>🛠️ Build</span><span>🏁 Launch</span><span>🔁 Retry</span></p>
     </header>
 
-    <section class="stage-shell awaiting-begin" aria-label="Playable derby MVP">
+    <section class="stage-shell awaiting-begin stage-dominant-correction" aria-label="Playable derby MVP">
+      <div class="paper-grain" aria-hidden="true"></div>
       <section id="loadScreen" class="load-screen" aria-labelledby="load-title">
         <div class="load-card">
           <p class="eyebrow">Loading contraption bay</p>
@@ -981,16 +1093,17 @@
 
       <section class="course-panel" aria-labelledby="course-title">
         <h2 id="course-title" class="sr-only">Course</h2>
-        <div id="course" class="course" data-run-phase="ready" data-motion-mode="continuous-hill" aria-label="Visible side-view derby hill with bump, loose crate, and finish line">
+        <div id="course" class="course toybox-sky" data-run-phase="ready" data-motion-mode="continuous-hill" aria-label="Visible side-view derby hill with bump, loose crate, and finish line">
           <div class="track-line"></div>
-          <div class="side-view-hill" aria-hidden="true"></div>
+          <div class="side-view-hill hand-drawn-hill" aria-hidden="true"></div>
+          <div class="start-ramp" aria-hidden="true"></div>
           <div class="course-path" aria-hidden="true"></div>
           <span class="label hill">⛰️ hill</span>
           <span class="label bump">〰️ bump</span>
           <span class="label crate">📦 crate</span>
           <span class="label finish">🏁 finish</span>
-          <div class="obstacle bump-shape" data-obstacle="bump" aria-hidden="true"></div>
-          <div class="obstacle crate-shape" data-obstacle="crate" aria-hidden="true"></div>
+          <div class="obstacle bump-shape cartoon-bump" data-obstacle="bump" aria-hidden="true"></div>
+          <div class="obstacle crate-shape cartoon-crate" data-obstacle="crate" aria-hidden="true"></div>
           <div class="finish-line" aria-hidden="true"></div>
           <span class="fx dust-a">💨</span>
           <span class="fx dust-b">💨</span>
@@ -1002,9 +1115,9 @@
             <div class="motion-trail" aria-hidden="true"></div>
             <div class="sprite-shadow" aria-hidden="true"></div>
             <div class="rig-body" aria-hidden="true"></div>
-            <div class="oddity-mount" aria-hidden="true">💨</div>
+            <div class="oddity-mount cartoon-whoopee" aria-hidden="true"><span></span></div>
             <div class="wheel-assembly" aria-hidden="true"><span class="wheel rear"></span><span class="wheel front"></span></div>
-            <span class="co-pilot chicken" title="Kentucky Fried">🐔</span>
+            <span class="co-pilot chicken cartoon-chicken" title="Kentucky Fried" aria-label="Kentucky Fried"></span>
           </div>
         </div>
       </section>
@@ -1169,7 +1282,8 @@
       contraption.classList.remove('wheel-cart', 'wheel-casters', 'wheel-wagon');
       contraption.classList.add(`wheel-${wheels}`);
       if (oddityMount) {
-        oddityMount.textContent = oddity === 'umbrella' ? '\u2602\uFE0F' : oddity === 'blower' ? '\u{1F343}' : '\u{1F4A8}';
+        oddityMount.className = `oddity-mount cartoon-${oddity === 'blower' ? 'blower' : oddity === 'umbrella' ? 'umbrella' : 'whoopee'}`;
+        oddityMount.innerHTML = '<span></span>';
       }
     }
 
