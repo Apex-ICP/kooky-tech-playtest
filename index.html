@@ -614,13 +614,16 @@
     .obstacle.bump-shape {
       position: absolute;
       left: 42%;
-      top: 68%;
+      top: 70%;
       width: 112px;
-      height: 46px;
-      border-radius: 90px 90px 8px 8px;
-      background: linear-gradient(180deg, #bb7a35, #734018);
-      border: 4px solid var(--outline);
-      box-shadow: inset 0 10px 0 rgba(255, 244, 177, 0.22), 4px 5px 0 rgba(43, 27, 16, 0.35);
+      height: 18px;
+      border-radius: 0;
+      background:
+        linear-gradient(105deg, transparent 0 13%, rgba(80, 45, 18, 0.5) 13% 17%, transparent 17% 34%, rgba(80, 45, 18, 0.38) 34% 39%, transparent 39% 100%);
+      border: 0;
+      box-shadow: none;
+      transform: rotate(-7deg);
+      opacity: 0.55;
       z-index: 3;
     }
 
@@ -1148,7 +1151,7 @@
       .finish { bottom: 17%; }
       .finish-line { height: 106px; width: 14px; bottom: 10%; }
       .start-ramp { width: 84px; height: 36px; border-width: 3px; box-shadow: 3px 4px 0 rgba(43, 27, 16, 0.35); }
-      .obstacle.bump-shape { width: 78px; height: 32px; top: 67%; }
+      .obstacle.bump-shape { width: 78px; height: 14px; top: 70%; }
       .obstacle.crate-shape { width: 48px; height: 48px; top: 72%; }
       .contraption { width: 118px; height: 76px; }
       .rig-body { left: 15px; top: 14px; width: 82px; height: 38px; border-width: 3px; }
