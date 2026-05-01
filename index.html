@@ -99,6 +99,17 @@
       background: #91e7ff;
       box-shadow: 7px 8px 0 #2a1b13, 0 20px 42px rgba(104, 70, 26, 0.22);
       isolation: isolate;
+      --speed-intensity: 0;
+      --impact-x: -18px;
+      --impact-y: -10px;
+      --impact-scale: 1;
+      --wobble-deg: 0deg;
+      --squash-x: 1;
+      --squash-y: 1;
+    }
+
+    .mobile-kinetic-stage {
+      --mobile-stage-focus: 1;
     }
 
     .stage-dominant-correction::before,
@@ -906,15 +917,24 @@
     .course.at-bump .impact,
     .course.at-bump .dust-a { animation: boom 760ms 1 ease-out; }
 
+    .course.at-bump .bump-shape { animation: rubber-squash 560ms 1 ease-out; }
+
     .course.at-crate .crate-shape { animation: crate-jolt 620ms 1 ease-out; }
     .course.at-crate .bonk-ring,
     .course.at-crate .tumble-star,
     .course.at-crate .dust-b { animation: boom 760ms 1 ease-out; }
 
+    .course.at-crate .rig-body,
+    .course.at-bump .rig-body { animation: soft-body-squash 520ms 1 ease-out; }
+
     .course.at-finish .sparkle { animation: pop 720ms 1 ease-out; }
 
     .running .wheel-assembly .wheel {
       animation: wheel-spin 220ms linear infinite;
+    }
+
+    .running .wheel-assembly {
+      animation: wheel-wobble 360ms infinite ease-in-out;
     }
 
     .running .motion-trail { animation: streak 420ms infinite ease-out; }
@@ -961,7 +981,12 @@
     @keyframes streak {
       0% { opacity: 0; transform: translateX(14px) scaleX(0.5); }
       35% { opacity: 0.72; }
-      100% { opacity: 0; transform: translateX(-16px) scaleX(1.35); }
+      100% { opacity: 0; transform: translateX(-16px) scaleX(calc(1.35 + var(--speed-intensity) * 0.75)); }
+    }
+
+    @keyframes wheel-wobble {
+      0%, 100% { transform: translateY(0) rotate(calc(var(--wobble-deg) * -0.35)); }
+      50% { transform: translateY(calc(-1px - var(--speed-intensity) * 2px)) rotate(var(--wobble-deg)); }
     }
 
     @keyframes puff {
@@ -977,15 +1002,27 @@
     }
 
     @keyframes boom {
-      0% { opacity: 0; transform: scale(0.2); }
-      28% { opacity: 1; transform: scale(1.45) rotate(-8deg); }
-      100% { opacity: 0; transform: scale(0.85) rotate(14deg); }
+      0% { opacity: 0; transform: translate(0, 0) scale(0.2); }
+      28% { opacity: 1; transform: translate(var(--impact-x), var(--impact-y)) scale(calc(1.25 + var(--impact-scale) * 0.38)) rotate(-8deg); }
+      100% { opacity: 0; transform: translate(calc(var(--impact-x) * 1.85), calc(var(--impact-y) * 1.55)) scale(0.85) rotate(14deg); }
+    }
+
+    @keyframes soft-body-squash {
+      0%, 100% { transform: scale(1); filter: none; }
+      30% { transform: translate(var(--impact-x), 2px) scale(calc(1.13 + var(--speed-intensity) * 0.1), calc(0.82 - var(--speed-intensity) * 0.08)); filter: drop-shadow(3px 0 0 rgba(43, 27, 16, 0.22)); }
+      62% { transform: translate(calc(var(--impact-x) * -0.28), -2px) scale(0.92, 1.14); }
+    }
+
+    @keyframes rubber-squash {
+      0%, 100% { transform: scale(1); }
+      32% { transform: translate(var(--impact-x), 6px) scale(1.22, 0.72); }
+      62% { transform: translate(calc(var(--impact-x) * -0.2), -4px) scale(0.92, 1.18); }
     }
 
     @keyframes crate-jolt {
       0%, 100% { transform: rotate(-9deg); }
-      35% { transform: translate(9px, -11px) rotate(18deg); }
-      70% { transform: translate(-3px, 2px) rotate(-18deg); }
+      35% { transform: translate(calc(var(--impact-x) * -0.8), calc(var(--impact-y) * 1.1)) rotate(24deg) scale(1.08, 0.88); }
+      70% { transform: translate(calc(var(--impact-x) * 0.2), 3px) rotate(-18deg) scale(0.94, 1.12); }
     }
 
     .result-card {
@@ -1022,51 +1059,112 @@
     }
 
     @media (max-width: 820px) {
-      main { width: min(100% - 10px, 720px); padding-top: 6px; }
-      .hero { padding: 8px 10px; border-radius: 17px; }
-      .hero::after { font-size: 62px; right: 8px; top: -21px; }
-      .eyebrow { font-size: 0.57rem; margin-bottom: 1px; }
-      h1 { font-size: clamp(1.2rem, 6.8vw, 1.9rem); line-height: 0.94; }
-      .tagline { margin-top: 4px; font-size: 0.7rem; }
-      .stage-shell { min-height: calc(100vh - 110px); margin-top: 6px; border-radius: 18px; }
-      .panel { padding: 9px; border-radius: 16px; }
-      .builder-overlay { left: 8px; top: 8px; width: calc(100% - 16px); max-height: 54%; }
-      .result-overlay { left: 8px; right: auto; bottom: 8px; width: calc(100% - 16px); }
-      .panel h2 { margin-bottom: 4px; font-size: 0.88rem; }
+      main { width: min(100% - 8px, 720px); padding-top: 4px; }
+      .hero { padding: 6px 9px; border-radius: 16px; box-shadow: 3px 4px 0 #2a1b13; }
+      .hero::after { font-size: 58px; right: 8px; top: -22px; }
+      .eyebrow { font-size: 0.55rem; margin-bottom: 1px; }
+      h1 { font-size: clamp(1.08rem, 6.1vw, 1.72rem); line-height: 0.92; max-width: 72%; }
+      .tagline { margin-top: 3px; font-size: 0.66rem; gap: 5px; }
+      .stage-shell {
+        min-height: calc(100vh - 104px);
+        margin-top: 5px;
+        border-radius: 17px;
+        border-width: 3px;
+        box-shadow: 4px 5px 0 #2a1b13, 0 13px 28px rgba(104, 70, 26, 0.2);
+      }
+      .mobile-kinetic-stage .course {
+        min-height: 0;
+        background:
+          radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.95) 0 30px, transparent 31px),
+          radial-gradient(circle at 81% 12%, #ffe56b 0 48px, rgba(255, 229, 107, 0.32) 49px 82px, transparent 83px),
+          linear-gradient(180deg, #5edcff 0 43%, #93ec78 43% 69%, #ffd36b 69% 100%);
+      }
+      .mobile-kinetic-stage .course::before,
+      .mobile-kinetic-stage .side-view-hill {
+        height: 56%;
+        clip-path: polygon(0 0, 13% 7%, 27% 13%, 41% 29%, 52% 36%, 66% 57%, 82% 66%, 100% 75%, 100% 100%, 0 100%);
+      }
+      .mobile-kinetic-stage .course-path { top: 42%; height: 21%; border-top-width: 18px; transform: rotate(16deg); }
+      .panel { padding: 8px; border-radius: 15px; border-width: 2px; box-shadow: 3px 4px 0 rgba(43, 27, 16, 0.82); }
+      .builder-overlay {
+        left: 7px;
+        top: 7px;
+        width: calc(100% - 14px);
+        max-height: 46%;
+        overflow: auto;
+        background: rgba(255, 252, 213, 0.72);
+      }
+      .stage-shell.build-complete .builder-overlay,
+      .stage-shell.result-theater .builder-overlay {
+        max-height: 27vh;
+        background: rgba(255, 252, 213, 0.58);
+        backdrop-filter: blur(4px) saturate(1.2);
+      }
+      .stage-shell.build-complete #builderForm,
+      .stage-shell.result-theater #builderForm {
+        display: none;
+      }
+      .stage-shell.build-complete .builder-panel h2::after,
+      .stage-shell.result-theater .builder-panel h2::after {
+        content: " locked ✓";
+        color: var(--green);
+        font-size: 0.7rem;
+      }
+      .result-overlay {
+        left: 9px;
+        right: auto;
+        bottom: 9px;
+        width: calc(100% - 18px);
+        background: rgba(255, 242, 168, 0.68);
+        transform: rotate(-0.6deg);
+      }
+      .result-theater .result-overlay {
+        border-color: #2a1b13;
+        box-shadow: 4px 5px 0 rgba(43, 27, 16, 0.78), 0 -18px 44px rgba(255, 209, 102, 0.22);
+      }
+      .panel h2 { margin-bottom: 4px; font-size: 0.84rem; }
       .hint { display: none; }
-      #builderForm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+      #builderForm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
       fieldset { margin: 0; min-width: 0; }
-      legend { margin-bottom: 3px; font-size: 0.66rem; }
+      legend { margin-bottom: 2px; font-size: 0.62rem; }
       .choice-grid { gap: 3px; }
-      .choice { min-height: 35px; padding: 4px 2px; border-radius: 10px; gap: 2px; }
-      .choice strong { font-size: 0.55rem; line-height: 1; }
-      .choice .icon { font-size: 0.95rem; }
-      .part-picto { width: 35px; height: 25px; transform: scale(0.82); transform-origin: center; }
-      .companion-choice .choice { min-height: 35px; grid-template-columns: 1fr; place-items: center; text-align: center; padding-inline: 2px; }
-      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin: 6px 0; padding: 6px; }
-      .stat-row { grid-template-columns: 1fr; gap: 3px; text-align: center; font-size: 0.66rem; }
+      .choice { min-height: 33px; padding: 3px 2px; border-radius: 10px; gap: 1px; }
+      .choice strong { font-size: 0.52rem; line-height: 1; }
+      .choice .icon { font-size: 0.9rem; }
+      .part-note { display: none; }
+      .part-picto { width: 34px; height: 24px; transform: scale(0.8); transform-origin: center; }
+      .companion-choice .choice { min-height: 33px; grid-template-columns: 1fr; place-items: center; text-align: center; padding-inline: 2px; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 5px 0; padding: 5px; background: rgba(255, 255, 255, 0.38); }
+      .stat-row { grid-template-columns: 1fr; gap: 3px; text-align: center; font-size: 0.62rem; }
       .stat-row output { display: none; }
       .meter { height: 6px; }
-      .actions { margin-top: 6px; gap: 7px; }
-      button { padding: 10px 9px; font-size: 0.84rem; }
+      .actions { margin-top: 5px; gap: 7px; }
+      button { padding: 9px 9px; font-size: 0.82rem; }
       .course-panel { inset: 0; }
-      .course { min-height: 0; }
-      .label { font-size: 0.66rem; padding: 4px 6px; }
-      .finish-line { height: 68px; }
-      .start-ramp { width: 70px; height: 30px; border-width: 3px; box-shadow: 3px 4px 0 rgba(43, 27, 16, 0.35); }
-      .obstacle.bump-shape { width: 50px; height: 20px; }
-      .obstacle.crate-shape { width: 31px; height: 31px; }
-      .contraption { width: 78px; height: 52px; }
-      .rig-body { left: 12px; top: 12px; width: 52px; height: 25px; }
-      .wheel-assembly { left: 10px; right: 12px; bottom: 7px; transform: scale(0.72); transform-origin: bottom center; }
-      .motion-trail { top: 18px; transform: scale(0.75); }
-      .chicken { font-size: 19px; right: -6px; top: -8px; }
+      .label { font-size: 0.68rem; padding: 4px 6px; }
+      .hill { top: 38%; }
+      .bump { top: 62%; }
+      .crate { top: 69%; }
+      .finish { bottom: 17%; }
+      .finish-line { height: 106px; width: 14px; bottom: 10%; }
+      .start-ramp { width: 84px; height: 36px; border-width: 3px; box-shadow: 3px 4px 0 rgba(43, 27, 16, 0.35); }
+      .obstacle.bump-shape { width: 78px; height: 32px; top: 67%; }
+      .obstacle.crate-shape { width: 48px; height: 48px; top: 72%; }
+      .contraption { width: 118px; height: 76px; }
+      .rig-body { left: 15px; top: 14px; width: 82px; height: 38px; border-width: 3px; }
+      .wheel-assembly { left: 14px; right: 16px; bottom: 8px; transform-origin: bottom center; }
+      .wheel-assembly .wheel { width: 20px; height: 20px; }
+      .motion-trail { top: 21px; left: -36px; width: 55px; height: 18px; opacity: calc(0.5 + var(--speed-intensity) * 0.45); }
+      .chicken { right: -6px; top: -8px; transform: scale(1.08); }
+      .fx { font-size: calc(1.55rem + var(--impact-scale) * 0.45rem); }
+      .impact { font-size: calc(2.2rem + var(--impact-scale) * 0.8rem); }
+      .dust-a { left: 20%; top: 57%; }
+      .dust-b { left: 51%; top: 66%; }
       .result-panel h2 { display: none; }
-      .result-card { min-height: 0; padding: 7px; }
-      .badge { padding: 4px 8px; margin-bottom: 2px; font-size: 0.74rem; }
-      .recap { margin-top: 2px; font-size: 0.72rem; line-height: 1.16; }
-      .distance { margin-top: 2px; }
-      .distance { font-size: 0.64rem; line-height: 1.15; }
+      .result-card { min-height: 0; padding: 8px 9px; border-radius: 16px; background: rgba(255,255,255,0.34); }
+      .badge { padding: 4px 8px; margin-bottom: 2px; font-size: 0.75rem; background: rgba(255, 209, 102, 0.56); color: var(--ink); }
+      .recap { margin-top: 2px; font-size: 0.72rem; line-height: 1.15; }
+      .distance { margin-top: 2px; font-size: 0.64rem; line-height: 1.15; }
       #hint { display: none; }
     }
   </style>
@@ -1107,7 +1205,7 @@
           <div class="finish-line" aria-hidden="true"></div>
           <span class="fx dust-a">💨</span>
           <span class="fx dust-b">💨</span>
-          <span class="fx impact">💥</span>
+          <span class="fx impact impact-vector-burst">💥</span>
           <span class="fx sparkle">✨</span>
           <span class="fx tumble-star">⭐</span>
           <span class="fx bonk-ring">⭕</span>
@@ -1296,7 +1394,9 @@
         document.querySelector(`#${name}Value`).value = value;
         document.querySelector(`#${name}Meter`).style.width = `${Math.min(100, Math.round((value / 18) * 100))}%`;
       });
-      startButton.hidden = !allChoicesMade(build);
+      const complete = allChoicesMade(build);
+      startButton.hidden = !complete; // marker: startButton.hidden = !allChoicesMade
+      stageShell.classList.toggle('build-complete', complete && !course.classList.contains('running'));
       return totals;
     }
 
@@ -1310,6 +1410,8 @@
 
     function beginGame() {
       stageShell.classList.remove('awaiting-begin');
+      stageShell.classList.add('mobile-kinetic-stage');
+      stageShell.classList.remove('result-theater');
       loadScreen.hidden = true;
       builderOverlay.classList.remove('is-hidden');
       resultOverlay.classList.add('is-hidden');
@@ -1457,12 +1559,20 @@
       const chaos = result?.totals?.chaos || 0;
       const slope = terrainSlopeAt(physicsState.position.x);
       const normal = normalizeVector(-slope, 1);
+      const incomingSpeed = Math.hypot(physicsState.velocity.x, physicsState.velocity.y);
       const damping = clamp(obstacle.damping + stability * obstacle.stabilityScale - chaos * 0.006, 0.45, 0.92);
       const impulse = obstacle.normalImpulse * (1 + chaos * obstacle.chaosScale);
       physicsState.velocity.x = Math.max(0.8, physicsState.velocity.x * damping + normal.x * impulse);
       physicsState.velocity.y = physicsState.velocity.y * damping + normal.y * impulse;
       physicsState.angularVelocity += obstacle.angularImpulse * (1 + chaos * 0.05);
       physicsState.crashed = physicsState.crashed || obstacle.id === 'crate';
+      physicsState.lastImpact = {
+        id: obstacle.id,
+        speed: incomingSpeed,
+        x: clamp(normal.x * -34, -42, 42),
+        y: clamp(normal.y * -22, -34, -8),
+        scale: clamp(incomingSpeed / 14, 0.75, 1.85),
+      };
       obstacle.impulseApplied = true;
     }
 
@@ -1505,8 +1615,18 @@
       const left = PHYSICS_CONFIG.startXPercent + progress * PHYSICS_CONFIG.trackWidthPercent;
       const top = physicsState.position.y;
       let rotation = physicsState.rotation * (180 / Math.PI);
-      let scaleX = 1.02;
-      let scaleY = 1.0 + Math.min(0.08, Math.abs(physicsState.angularVelocity) * 0.006);
+      const speed = Math.hypot(physicsState.velocity.x, physicsState.velocity.y);
+      const speedIntensity = clamp(speed / 16, 0, 1);
+      let scaleX = 1.02 + speedIntensity * 0.05;
+      let scaleY = 1.0 + Math.min(0.1, Math.abs(physicsState.angularVelocity) * 0.006) - speedIntensity * 0.025;
+      const impact = physicsState.lastImpact || { x: -18, y: -10, scale: speedIntensity || 1 };
+      stageShell.style.setProperty('--speed-intensity', speedIntensity.toFixed(3));
+      stageShell.style.setProperty('--impact-x', `${Math.round(impact.x)}px`);
+      stageShell.style.setProperty('--impact-y', `${Math.round(impact.y)}px`);
+      stageShell.style.setProperty('--impact-scale', clamp(impact.scale, 0.75, 1.85).toFixed(3));
+      stageShell.style.setProperty('--wobble-deg', `${(Math.abs(physicsState.angularVelocity) * 1.8 + speedIntensity * 5).toFixed(2)}deg`);
+      stageShell.style.setProperty('--squash-x', scaleX.toFixed(3));
+      stageShell.style.setProperty('--squash-y', scaleY.toFixed(3));
 
       if (physicsState.stopReason && resultClass === 'failure') {
         rotation += 36;
@@ -1531,6 +1651,7 @@
     function resetCourseClass() {
       cancelRunAnimation();
       course.classList.remove('running', 'success', 'failure', 'elegant', 'at-bump', 'at-crate', 'at-finish');
+      stageShell.classList.remove('result-theater');
       course.dataset.runPhase = 'ready';
       activeResult = null;
       activeClassName = '';
@@ -1557,6 +1678,7 @@
       course.classList.add(className, 'at-bump', 'at-crate');
       if (physicsState.stopReason === 'finish') course.classList.add('at-finish');
       course.dataset.runPhase = 'done';
+      stageShell.classList.add('result-theater');
       renderPhysicsFrame(className);
       builderOverlay.classList.remove('is-hidden');
       resultOverlay.classList.remove('is-hidden');
@@ -1571,6 +1693,7 @@
     function runDerby() {
       resetCourseClass();
       course.classList.add('running');
+      stageShell.classList.remove('build-complete', 'result-theater');
       course.dataset.runPhase = 'rolling';
       builderOverlay.classList.add('is-hidden');
       resultOverlay.classList.add('is-hidden');
@@ -1614,6 +1737,7 @@
 
     function tweakAgain() {
       resetCourseClass();
+      stageShell.classList.remove('result-theater');
       builderOverlay.classList.remove('is-hidden');
       resultOverlay.classList.add('is-hidden');
       buildSteps.forEach((step) => {
